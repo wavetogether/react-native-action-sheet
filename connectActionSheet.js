@@ -4,9 +4,11 @@ import PropTypes from 'prop-types';
 
 export default function connectActionSheet(WrappedComponent) {
   const ConnectedActionSheet = (props, context) => {
+    const { forwardedRef, ...rest } = props
     return (
       <WrappedComponent
-        {...props}
+        ref={forwardedRef}
+        {...rest}
         showActionSheetWithOptions={context.showActionSheetWithOptions}
       />
     );
@@ -16,5 +18,9 @@ export default function connectActionSheet(WrappedComponent) {
     showActionSheetWithOptions: PropTypes.func,
   };
 
-  return hoistStatics(ConnectedActionSheet, WrappedComponent);
+  const ForwardedComponent = React.forwardRef((props, ref) => {
+    return <ConnectedActionSheet {...props} forwardedRef={ref} />;
+  })
+
+  return hoistStatics(ForwardedComponent, WrappedComponent);
 }
