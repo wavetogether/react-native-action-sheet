@@ -6,6 +6,7 @@ import {
   Animated,
   BackHandler,
   Easing,
+  Modal,
   Platform,
   StyleSheet,
   Text,
@@ -31,6 +32,7 @@ type ActionSheetOptions = {
   messageTextStyle?: ?any,
   showSeparators?: ?boolean,
   separatorStyle?: ?any,
+  useModal?: boolean,
 };
 
 type ActionGroupProps = {
@@ -212,7 +214,9 @@ export default class ActionSheet extends React.Component {
     this._actionSheetHeight = nativeEvent.layout.height;
 
   render() {
-    const { isVisible, overlayOpacity } = this.state;
+    const { isVisible, overlayOpacity, options } = this.state;
+    const useModal = options ? options.useModal === true : false;
+
     const overlay = !!isVisible && (
       <Animated.View
         style={[
@@ -227,8 +231,19 @@ export default class ActionSheet extends React.Component {
     return (
       <View style={{ flex: 1 }}>
         {React.Children.only(this.props.children)}
+        {isVisible && !useModal && (
+            <React.Fragment>
+              {overlay}
+              {this._renderSheet()}
+            </React.Fragment>
+        )}
         {overlay}
-        {!!isVisible && this._renderSheet()}
+        {isVisible && useModal && (
+            <Modal animationType="none" transparent={true} onRequestClose={this._selectCancelButton}>
+              {overlay}
+              {this._renderSheet()}
+            </Modal>
+        )}
       </View>
     );
   }
